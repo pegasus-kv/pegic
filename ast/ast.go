@@ -35,6 +35,7 @@ func (n *CommandASTNode) description() string {
 	return dest
 }
 
+// Root node of the AST.
 var root *CommandASTNode = &CommandASTNode{
 	SubNodes: make(map[string]*CommandASTNode),
 }
@@ -54,6 +55,7 @@ func suggestInTree(arguments []string, parent *CommandASTNode) []prompt.Suggest 
 	if len(arguments) == 1 { // user is typing the keyword
 		var sgts []prompt.Suggest
 		for keyword, subNode := range parent.SubNodes {
+			// suggest with all possible keywords
 			sgts = append(sgts, prompt.Suggest{
 				Text:        keyword,
 				Description: subNode.description(),
@@ -75,12 +77,15 @@ func suggestInTree(arguments []string, parent *CommandASTNode) []prompt.Suggest 
 			if cmdArg.Suggester != nil {
 				return cmdArg.Suggester()
 			}
+			// no suggestion for command argument
 			return []prompt.Suggest{}
 		}
 		arguments = arguments[:len(arguments)-len(node.Arguments)]
 	}
-	if len(arguments) > 0 {
+	if len(arguments) > 0 { // step forward to the next keyword
 		return suggestInTree(arguments, node)
 	}
+	// Keyword is typed completely, no other arguments required.
+	// No prompt.
 	return []prompt.Suggest{}
 }

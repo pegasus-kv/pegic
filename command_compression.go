@@ -2,8 +2,6 @@ package pegic
 
 import (
 	"pegic/ast"
-
-	"github.com/c-bata/go-prompt"
 )
 
 type compressionCommand struct {
@@ -17,11 +15,11 @@ func (*compressionCommand) execute() error {
 func (*compressionCommand) astNode() *ast.CommandASTNode {
 	return &ast.CommandASTNode{
 		Arguments: []*ast.CommandArgument{
-			{Name: "zstd|no", Suggester: func() []prompt.Suggest {
-				return []prompt.Suggest{
-					{Text: "zstd"},
-					{Text: "no"},
-				}
+			{Name: "zstd|no", Selections: &ast.Select{
+				Items: []string{
+					"zstd",
+					"no",
+				},
 			}},
 		},
 	}

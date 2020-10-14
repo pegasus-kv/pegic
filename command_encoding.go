@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
-
-	"github.com/c-bata/go-prompt"
 )
 
 type pegicBytesEncoding int
@@ -70,26 +68,30 @@ type encodingCommand struct {
 	algorithm string
 }
 
-func (*encodingCommand) parse(args []string) error {
-	return nil
-}
-
 func (*encodingCommand) execute() error {
 	return nil
 }
 
 func (*encodingCommand) astNode() *ast.CommandASTNode {
-	encSuggester := func() []prompt.Suggest {
-		return []prompt.Suggest{
-			{Text: "UTF-8"},
-			{Text: "ASCII"},
-			{Text: "INT"},
-			{Text: "BYTES"},
-		}
-	}
+	// Possible inputs:
+	//   ENCODING HASHKEY <UTF-8|ASCII|INT|BYTES>
+	//   ENCODING SORTKEY <UTF-8|ASCII|INT|BYTES>
+	//   ENCODING VALUE <UTF-8|ASCII|INT|BYTES>
+	//   ENCODING RESET
+
 	encNode := &ast.CommandASTNode{
 		Arguments: []*ast.CommandArgument{
-			{Name: "encoding", Suggester: encSuggester},
+			{
+				Name: "encoding",
+				Selections: &ast.Select{
+					Items: []string{
+						"UTF-8",
+						"ASCII",
+						"INT",
+						"BYTES",
+					},
+				},
+			},
 		},
 	}
 	node := &ast.CommandASTNode{

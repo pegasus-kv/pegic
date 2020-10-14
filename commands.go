@@ -6,6 +6,7 @@ import (
 	"pegic/ast"
 )
 
+// pegicCommand is the interface for all the supported commands in pegic.
 type pegicCommand interface {
 
 	// Execute the command
@@ -28,6 +29,7 @@ type useCommand struct {
 }
 
 func (*useCommand) execute() error {
+	// TODO
 	return nil
 }
 

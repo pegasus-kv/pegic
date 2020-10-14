@@ -55,12 +55,13 @@ func createBytesFromString(s string, enc pegicBytesEncoding) (*pegicBytes, error
 		}
 
 	default:
-
+		panic(fmt.Sprintf("unsupported encoding %d", enc))
 	}
 	return pb, nil
 }
 
 func (*pegicBytes) String() string {
+	// TODO(wutao)
 	return ""
 }
 
@@ -68,7 +69,8 @@ type encodingCommand struct {
 	algorithm string
 }
 
-func (*encodingCommand) execute() error {
+func (*encodingCommand) execute(parsedCmd *ast.ParsedCommand) error {
+	// TODO(wutao)
 	return nil
 }
 

@@ -10,7 +10,7 @@ import (
 type pegicCommand interface {
 
 	// Execute the command
-	execute() error
+	execute(parsedCmd *ast.ParsedCommand) error
 
 	// Create a AST node for this command.
 	astNode() *ast.CommandASTNode
@@ -28,7 +28,7 @@ type useCommand struct {
 	tableName string
 }
 
-func (*useCommand) execute() error {
+func (*useCommand) execute(parsedCmd *ast.ParsedCommand) error {
 	// TODO
 	return nil
 }
@@ -44,7 +44,7 @@ func (*useCommand) astNode() *ast.CommandASTNode {
 type exitCommand struct {
 }
 
-func (*exitCommand) execute() error {
+func (*exitCommand) execute(parsedCmd *ast.ParsedCommand) error {
 	fmt.Println("Bye!")
 	os.Exit(0)
 	return nil

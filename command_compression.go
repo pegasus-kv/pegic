@@ -8,7 +8,8 @@ type compressionCommand struct {
 	algorithm string
 }
 
-func (*compressionCommand) execute() error {
+func (*compressionCommand) execute(parsedCmd *ast.ParsedCommand) error {
+	// TODO(wutao)
 	return nil
 }
 

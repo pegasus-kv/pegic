@@ -9,11 +9,7 @@ type setCommand struct {
 	ttlSeconds string
 }
 
-func (*setCommand) parse(args []string) error {
-	return nil
-}
-
-func (*setCommand) execute() error {
+func (*setCommand) execute(parsedCmd *ast.ParsedCommand) error {
 	return nil
 }
 

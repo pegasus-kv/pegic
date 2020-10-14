@@ -2,6 +2,7 @@ package pegic
 
 import (
 	"fmt"
+	"pegic/ast"
 	"strings"
 )
 
@@ -16,10 +17,16 @@ func Executor(s string) {
 	cmdStr := strings.ToUpper(args[0])
 	cmd, found := commandsTable[cmdStr]
 	if !found {
-		fmt.Printf("unsupported command: \"%s\"\n", cmdStr)
+		fmt.Printf("ERROR: unsupported command: \"%s\"\n", cmdStr)
 		return
 	}
-	if err := cmd.execute(); err != nil {
-		fmt.Printf("execution failed: %s\n", err)
+	parsedCmd, err := ast.Parse(args)
+	if err != nil {
+		fmt.Printf("ERROR: unable to parse command: %s\n", err)
+		return
+	}
+	if err := cmd.execute(parsedCmd); err != nil {
+		fmt.Printf("ERROR: execution failed: %s\n", err)
+		return
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"pegic/ast"
+	p "pegic/parser"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -66,11 +67,41 @@ func (*pegicBytes) String() string {
 }
 
 type encodingCommand struct {
-	algorithm string
+	reset    bool
+	keyType  string
+	encoding string
 }
 
-func (*encodingCommand) execute(parsedCmd *ast.ParsedCommand) error {
+func (c *encodingCommand) parse(input string) error {
+	res, s := p.ArrayWhiteSpace(
+		p.Opt(p.TagNoCase("reset")),
+		p.Maybe(
+			p.Alt(p.TagNoCase("hashkey"), p.TagNoCase("sortkey"), p.TagNoCase("value")),
+			p.MultiSpace1, p.Alt(p.TagNoCase("utf-8"), p.TagNoCase("ascii"), p.TagNoCase("int"), p.TagNoCase("byte")),
+		),
+	)(input)
+	if res.Err != nil {
+		return res.Err
+	}
+	if s != "" {
+		return fmt.Errorf("redundant input `%s`", s)
+	}
+	out := res.Output.([]interface{})
+	c.reset = out[0] != nil
+	if out[1] != nil {
+		arr := out[1].([]interface{})
+		c.keyType = arr[0].(string)
+		c.encoding = arr[2].(string)
+	} else {
+		c.keyType = ""
+		c.encoding = ""
+	}
+	return nil
+}
+
+func (c *encodingCommand) execute() error {
 	// TODO(wutao)
+	fmt.Printf("%+v\n", c)
 	return nil
 }
 

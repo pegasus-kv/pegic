@@ -1,6 +1,7 @@
 package pegic
 
 import (
+	"context"
 	"fmt"
 	"pegic/ast"
 	p "pegic/parser"
@@ -25,8 +26,15 @@ func (c *getCommand) parse(input string) error {
 	return nil
 }
 
-func (c *getCommand) execute() error {
-	fmt.Printf("%+v\n", c)
+func (c *getCommand) execute(ctx *ExecContext) error {
+	if ctx.table == nil {
+		return noTableError
+	}
+	res, err := ctx.table.Get(context.Background(), []byte(c.hashKey), []byte(c.sortKey))
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(res))
 	return nil
 }
 

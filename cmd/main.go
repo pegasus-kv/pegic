@@ -33,7 +33,7 @@ func main() {
 	}
 
 	p := prompt.New(
-		pegic.Executor,
+		pegic.NewExecutor(*metaServerList).Execute,
 		pegic.Completer,
 		prompt.OptionPrefix(">>> "),
 		prompt.OptionInputTextColor(prompt.Yellow),

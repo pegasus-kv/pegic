@@ -1,6 +1,7 @@
 package pegic
 
 import (
+	"context"
 	"fmt"
 	"pegic/ast"
 	p "pegic/parser"
@@ -25,8 +26,13 @@ func (c *delCommand) parse(input string) error {
 	return nil
 }
 
-func (c *delCommand) execute() error {
-	fmt.Printf("%+v\n", c)
+func (c *delCommand) execute(ctx *ExecContext) error {
+	if ctx.table == nil {
+		return noTableError
+	}
+	if err := ctx.table.Del(context.Background(), []byte(c.hashKey), []byte(c.sortKey)); err != nil {
+		return err
+	}
 	return nil
 }
 

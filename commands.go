@@ -1,6 +1,7 @@
 package pegic
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"pegic/ast"
@@ -13,22 +14,23 @@ type pegicCommand interface {
 	parse(input string) error
 
 	// Execute the command
-	execute() error
+	execute(*ExecContext) error
 
 	// Create a AST node for this command.
 	astNode() *ast.CommandASTNode
 }
 
 var commandsTable = map[string]pegicCommand{
-	"USE":         &useCommand{},
-	"GET":         &getCommand{},
-	"SET":         &setCommand{},
-	"DEL":         &delCommand{},
-	"COMPRESSION": &compressionCommand{},
-	"ENCODING":    &encodingCommand{},
-	"EXIT":        &exitCommand{},
-	"SCAN":        &scanCommand{},
-	"FULLSCAN":    &fullScanCommand{},
+	"USE":      &useCommand{},
+	"LS":       &lsCommand{},
+	"GET":      &getCommand{},
+	"SET":      &setCommand{},
+	"DEL":      &delCommand{},
+	"SCAN":     &scanCommand{},
+	"FULLSCAN": &fullScanCommand{},
+	// "COMPRESSION": &compressionCommand{},
+	// "ENCODING":    &encodingCommand{},
+	// "EXIT":        &exitCommand{},
 }
 
 type useCommand struct {
@@ -47,9 +49,12 @@ func (c *useCommand) parse(input string) error {
 	return nil
 }
 
-func (c *useCommand) execute() error {
-	// TODO
-	fmt.Printf("%+v\n", c)
+func (c *useCommand) execute(ctx *ExecContext) error {
+	tb, err := ctx.client.OpenTable(context.Background(), c.tableName)
+	if err != nil {
+		return err
+	}
+	ctx.table = tb
 	return nil
 }
 
@@ -68,7 +73,7 @@ func (c *exitCommand) parse(input string) error {
 	return nil
 }
 
-func (*exitCommand) execute() error {
+func (*exitCommand) execute(*ExecContext) error {
 	fmt.Println("Bye!")
 	os.Exit(0)
 	return nil

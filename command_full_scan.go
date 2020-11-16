@@ -1,9 +1,15 @@
 package pegic
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"os"
 	"pegic/ast"
 	p "pegic/parser"
+
+	"github.com/XiaoMi/pegasus-go-client/pegasus"
+	"github.com/olekukonko/tablewriter"
 )
 
 type fullScanCommand struct {
@@ -108,20 +114,112 @@ func (c *fullScanCommand) parse(input string) error {
 	return nil
 }
 
-func (c *fullScanCommand) execute() error {
-	fmt.Printf("%+v\n", c)
-	if c.hashKey != nil {
-		fmt.Printf("%+v\n", c.hashKey)
+func (c *fullScanCommand) execute(ctx *ExecContext) error {
+	if ctx.table == nil {
+		return noTableError
 	}
-	if c.sortKey != nil {
-		fmt.Printf("%+v\n", c.sortKey)
+	hkFilter := pegasus.Filter{}
+	if hk := c.hashKey; hk != nil {
+		if hk.contains != "" {
+			hkFilter.Type = pegasus.FilterTypeMatchAnywhere
+			hkFilter.Pattern = []byte(hk.contains)
+		}
+		if hk.prefix != "" {
+			hkFilter.Type = pegasus.FilterTypeMatchPrefix
+			hkFilter.Pattern = []byte(hk.prefix)
+		}
+		if hk.suffix != "" {
+			hkFilter.Type = pegasus.FilterTypeMatchPostfix
+			hkFilter.Pattern = []byte(hk.suffix)
+		}
 	}
+	var (
+		start []byte
+		stop  []byte
+		is    []byte
+	)
+	skFilter := pegasus.Filter{}
+	if sk := c.sortKey; sk != nil {
+		if sk.contains != "" {
+			skFilter.Type = pegasus.FilterTypeMatchAnywhere
+			skFilter.Pattern = []byte(sk.contains)
+		}
+		if sk.prefix != "" {
+			skFilter.Type = pegasus.FilterTypeMatchPrefix
+			skFilter.Pattern = []byte(sk.prefix)
+		}
+		if sk.suffix != "" {
+			skFilter.Type = pegasus.FilterTypeMatchPostfix
+			skFilter.Pattern = []byte(sk.suffix)
+		}
+		if sk.is != "" {
+			is = []byte(sk.is)
+		}
+		if sk.start != "" {
+			start = []byte(sk.start)
+			stop = []byte(sk.stop)
+		}
+	}
+	sopts := &pegasus.ScannerOptions{
+		HashKeyFilter: hkFilter,
+		SortKeyFilter: skFilter,
+		NoValue:       c.noValue,
+	}
+	scanners, err := ctx.table.GetUnorderedScanners(context.Background(), 16, sopts)
+	if err != nil {
+		return err
+	}
+	var result [][]string
+	keys := make(map[string][][]byte)
+	for _, scanner := range scanners {
+		for {
+			completed, hashKey, sortKey, value, err := scanner.Next(context.Background())
+			if err != nil {
+				return err
+			}
+			if completed {
+				break
+			}
+			if is != nil && !bytes.Equal(is, sortKey) {
+				continue
+			}
+			if start != nil {
+				if !(bytes.Compare(sortKey, start) > 0 && bytes.Compare(sortKey, stop) < 0) {
+					continue
+				}
+			}
+			if c.noValue {
+				result = append(result, []string{string(hashKey), string(sortKey)})
+			} else {
+				result = append(result, []string{string(hashKey), string(sortKey), string(value)})
+			}
+			keys[string(hashKey)] = append(keys[string(hashKey)], sortKey)
+		}
+	}
+	if c.delete {
+		for hk, sks := range keys {
+			if err := ctx.table.MultiDel(context.Background(), []byte(hk), sks); err != nil {
+				return err
+			}
+		}
+	}
+	if c.count {
+		fmt.Println(len(result))
+		return nil
+	}
+	table := tablewriter.NewWriter(os.Stdout)
+	if c.noValue {
+		table.SetHeader([]string{"hashKey", "sortKey"})
+	} else {
+		table.SetHeader([]string{"hashKey", "sortKey", "value"})
+	}
+	table.AppendBulk(result)
+	table.Render()
 	return nil
 }
 
 func (c *fullScanCommand) astNode() *ast.CommandASTNode {
 	return &ast.CommandASTNode{
-		SubNodes: map[string]*ast.CommandASTNode{
-		},
+		SubNodes: map[string]*ast.CommandASTNode{},
 	}
 }

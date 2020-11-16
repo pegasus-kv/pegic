@@ -1,9 +1,11 @@
 package pegic
 
 import (
+	"context"
 	"fmt"
 	"pegic/ast"
 	p "pegic/parser"
+	"time"
 )
 
 type setCommand struct {
@@ -33,8 +35,19 @@ func (c *setCommand) parse(input string) error {
 	return nil
 }
 
-func (c *setCommand) execute() error {
-	fmt.Printf("%+v\n", c)
+func (c *setCommand) execute(ctx *ExecContext) error {
+	if ctx.table == nil {
+		return noTableError
+	}
+	if c.ttlSeconds != 0 {
+		if err := ctx.table.SetTTL(context.Background(), []byte(c.hashKey), []byte(c.sortKey), []byte(c.value), time.Duration(c.ttlSeconds) * time.Second); err != nil {
+			return err
+		}
+	} else {
+		if err := ctx.table.Set(context.Background(), []byte(c.hashKey), []byte(c.sortKey), []byte(c.value)); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

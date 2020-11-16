@@ -1,12 +1,42 @@
 package pegic
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/XiaoMi/pegasus-go-client/admin"
+	"github.com/XiaoMi/pegasus-go-client/pegasus"
 )
 
+type Executor struct {
+	ctx *ExecContext
+}
+
+type ExecContext struct {
+	client      pegasus.Client
+	adminClient admin.Client
+	table       pegasus.TableConnector
+}
+
+func NewExecutor(metaServerList []string) *Executor {
+	cfg := pegasus.Config{
+		MetaServers: metaServerList,
+	}
+	adminCfg := admin.Config{
+		MetaServers: metaServerList,
+	}
+	client := pegasus.NewClient(cfg)
+	adminClient := admin.NewClient(adminCfg)
+	return &Executor{
+		ctx: &ExecContext{client: client, adminClient: adminClient},
+	}
+}
+
+var noTableError = errors.New("no table selected, please run `USE <\"table_name\">`")
+
 // Executor is the pegic command executor in interactive mode.
-func Executor(s string) {
+func (e *Executor) Execute(s string) {
 	s = strings.TrimSpace(s)
 	if len(s) == 0 {
 		return
@@ -28,7 +58,7 @@ func Executor(s string) {
 		fmt.Printf("ERROR: unable to parse command: %s\n", err)
 		return
 	}
-	if err := cmd.execute(); err != nil {
+	if err := cmd.execute(e.ctx); err != nil {
 		fmt.Printf("ERROR: execution failed: %s\n", err)
 		return
 	}

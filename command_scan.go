@@ -1,9 +1,14 @@
 package pegic
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"pegic/ast"
 	p "pegic/parser"
+
+	"github.com/XiaoMi/pegasus-go-client/pegasus"
+	"github.com/olekukonko/tablewriter"
 )
 
 /*
@@ -127,11 +132,76 @@ func (c *scanCommand) parse(input string) error {
 	return nil
 }
 
-func (c *scanCommand) execute() error {
-	fmt.Printf("%+v\n", c)
-	if c.sortKey != nil {
-		fmt.Printf("%+v\n", c.sortKey)
+func (c *scanCommand) execute(ctx *ExecContext) error {
+	if ctx.table == nil {
+		return noTableError
 	}
+	var start []byte
+	var stop []byte
+	if c.sortKey != nil {
+		start = []byte(c.sortKey.start)
+		stop = []byte(c.sortKey.stop)
+	}
+	filter := pegasus.Filter{
+		Type: pegasus.FilterTypeNoFilter,
+		Pattern: nil,
+	}
+	if sk := c.sortKey; sk != nil {
+		if sk.contains != "" {
+			filter.Type = pegasus.FilterTypeMatchAnywhere
+			filter.Pattern = []byte(sk.contains)
+		}
+		if sk.prefix != "" {
+			filter.Type = pegasus.FilterTypeMatchPrefix
+			filter.Pattern = []byte(sk.prefix)
+		}
+		if sk.suffix != "" {
+			filter.Type = pegasus.FilterTypeMatchPostfix
+			filter.Pattern = []byte(sk.suffix)
+		}
+	}
+	sopts := &pegasus.ScannerOptions{
+		NoValue: c.noValue,
+		SortKeyFilter: filter,
+	}
+	scanner, err := ctx.table.GetScanner(context.Background(), []byte(c.hashKey), start, stop, sopts)
+	if err != nil {
+		return err
+	}
+	var result [][]string
+	var sortKeys [][]byte
+	for {
+		completed, hashKey, sortKey, value, err := scanner.Next(context.Background())
+		if err != nil {
+			return err
+		}
+		if completed {
+			break
+		}
+		if c.noValue {
+			result = append(result, []string{string(hashKey), string(sortKey)})
+		} else {
+			result = append(result, []string{string(hashKey), string(sortKey), string(value)})
+		}
+		sortKeys = append(sortKeys, sortKey)
+	}
+	if c.delete {
+		if err := ctx.table.MultiDel(context.Background(), []byte(c.hashKey), sortKeys); err != nil {
+			return err
+		}
+	}
+	if c.count {
+		fmt.Println(len(result))
+		return nil
+	}
+	table := tablewriter.NewWriter(os.Stdout)
+	if c.noValue {
+		table.SetHeader([]string{"hashKey", "sortKey"})
+	} else {
+		table.SetHeader([]string{"hashKey", "sortKey", "value"})
+	}
+	table.AppendBulk(result)
+	table.Render()
 	return nil
 }
 

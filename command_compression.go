@@ -1,14 +1,28 @@
 package pegic
 
 import (
+	"fmt"
 	"pegic/ast"
+	p "pegic/parser"
 )
 
 type compressionCommand struct {
 	algorithm string
 }
 
-func (*compressionCommand) execute(parsedCmd *ast.ParsedCommand) error {
+func (c *compressionCommand) parse(input string) error {
+	res, s := p.Alt(p.TagNoCase("zstd"), p.TagNoCase("no"))(input)
+	if res.Err != nil {
+		return res.Err
+	}
+	if s != "" {
+		return fmt.Errorf("redundant input `%s`", s)
+	}
+	c.algorithm = res.Output.(string)
+	return nil
+}
+
+func (*compressionCommand) execute() error {
 	// TODO(wutao)
 	return nil
 }

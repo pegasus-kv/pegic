@@ -36,7 +36,7 @@ func (s *Select) Contains(inputArg string) bool {
 type CommandArgument struct {
 	Name string
 
-	// Optional.
+	Optional   bool
 	Selections *Select
 }
 
@@ -127,39 +127,82 @@ type ParsedCommand struct {
 
 //
 type ParsedArgument struct {
+	Name  string
 	Value string
+}
+
+func parseImpl(node *CommandASTNode, arguments *[]string) *ParsedCommand {
+	parsedCmd := &ParsedCommand{
+		Tokens: make(map[string][]*ParsedArgument),
+	}
+
+	for len(*arguments) > 0 {
+		keyword := (*arguments)[0]
+		subNode, hasNode := node.SubNodes[keyword]
+		if !hasNode || len(subNode.Arguments) > len(*arguments)-1 {
+			return nil
+		}
+		count := 0
+		for i, arg := range subNode.Arguments {
+			inputArg := (*arguments)[i+1]
+			// validate argument
+			if arg.Selections != nil && !arg.Selections.Contains(inputArg) {
+				if arg.Optional {
+					continue
+				} else {
+					return nil
+				}
+			}
+			parsedCmd.Tokens[keyword] = append(parsedCmd.Tokens[keyword], &ParsedArgument{Name: arg.Name, Value: inputArg})
+			count++
+		}
+
+		*arguments = (*arguments)[count+1:]
+		if cmd := parseImpl(subNode, arguments); cmd != nil {
+			for key, tok := range cmd.Tokens {
+				parsedCmd.Tokens[key] = append(parsedCmd.Tokens[key], tok...)
+			}
+		}
+	}
+
+	return parsedCmd
 }
 
 // Parse out user input into a complete command.
 func Parse(arguments []string) (*ParsedCommand, error) {
-	parsedCmd := &ParsedCommand{
-		Tokens: make(map[string]([]*ParsedArgument)),
+	// parsedCmd := &ParsedCommand{
+	// 	Tokens: make(map[string]([]*ParsedArgument)),
+	// }
+
+	// node := root
+	// for len(arguments) > 0 {
+	// 	keyword := arguments[0]
+	// 	subNode, hasNode := node.SubNodes[keyword]
+	// 	if !hasNode {
+	// 		return nil, fmt.Errorf("\"%s\" is not a valid keyword", keyword)
+	// 	}
+	// 	if len(subNode.Arguments) > len(arguments) {
+	// 		return nil, fmt.Errorf("not enough arguments after keyword \"%s\"", keyword)
+	// 	}
+	// 	token := parsedCmd.Tokens[keyword]
+	// 	for i, arg := range subNode.Arguments {
+	// 		inputArg := arguments[i]
+	// 		// validate argument
+	// 		if arg.Selections != nil && !arg.Selections.Contains(inputArg) {
+	// 			return nil, fmt.Errorf("argument \"%s\" after keyword \"%s\" must be one of %s", inputArg, keyword, arg.Selections.Items)
+	// 		}
+	// 		token = append(token, &ParsedArgument{Value: inputArg})
+	// 	}
+
+	// 	// step down to the next level
+	// 	arguments = arguments[len(subNode.Arguments):]
+	// 	node = subNode
+	// }
+
+	// return parsedCmd, nil
+	cmd := parseImpl(root, &arguments)
+	if len(arguments) > 0 {
+		return nil, fmt.Errorf("Invalid keyword or argument for \"%s\"", arguments[0])
 	}
-
-	node := root
-	for len(arguments) > 0 {
-		keyword := arguments[0]
-		subNode, hasNode := node.SubNodes[keyword]
-		if !hasNode {
-			return nil, fmt.Errorf("\"%s\" is not a valid keyword", keyword)
-		}
-		if len(subNode.Arguments) > len(arguments) {
-			return nil, fmt.Errorf("not enough arguments after keyword \"%s\"", keyword)
-		}
-		token := parsedCmd.Tokens[keyword]
-		for i, arg := range subNode.Arguments {
-			inputArg := arguments[i]
-			// validate argument
-			if arg.Selections != nil && !arg.Selections.Contains(inputArg) {
-				return nil, fmt.Errorf("argument \"%s\" after keyword \"%s\" must be one of %s", inputArg, keyword, arg.Selections.Items)
-			}
-			token = append(token, &ParsedArgument{Value: inputArg})
-		}
-
-		// step down to the next level
-		arguments = arguments[len(subNode.Arguments):]
-		node = subNode
-	}
-
-	return parsedCmd, nil
+	return cmd, nil
 }

@@ -20,7 +20,11 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
 	"pegic/interactive"
+	"strings"
+	"time"
 
 	"github.com/desertbit/grumble"
 )
@@ -32,7 +36,23 @@ func init() {
 		Help:    "select a table",
 		Usage:   "use <TABLE_NAME>",
 		Run: func(c *grumble.Context) error {
-			// TODO(wutao): verify if the use table exists
+			if len(c.Args) != 1 {
+				return fmt.Errorf("invalid number (%d) of arguments for `use`", len(c.Args))
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+			defer cancel()
+			var tableName = c.Args[0]
+			var err error
+			globalContext.UseTable, err = globalContext.OpenTable(ctx, tableName)
+			if err != nil && strings.Contains(err.Error(), "ERR_OBJECT_NOT_FOUND") {
+				// give a simple prompt to this special error
+				return fmt.Errorf("table \"%s\" does not exist", tableName)
+			}
+			if err != nil {
+				return err
+			}
+
 			c.App.Println("ok")
 			return nil
 		},

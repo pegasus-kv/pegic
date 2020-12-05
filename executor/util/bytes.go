@@ -12,10 +12,11 @@ import (
 type PegicBytesEncoding int
 
 const (
-	EncodingUTF8  PegicBytesEncoding = 1
-	EncodingASCII                    = 2
-	EncodingInt                      = 3
-	EncodingBytes                    = 4
+	// EncodingUTF8 is the default encoding of string.
+	EncodingUTF8  PegicBytesEncoding = 0
+	EncodingASCII                    = 1
+	EncodingInt                      = 2
+	EncodingBytes                    = 3
 )
 
 type PegicBytes struct {

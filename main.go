@@ -1,7 +1,6 @@
 package main
 
 import (
-	"pegic/cmd"
 	"pegic/shell"
 
 	"github.com/XiaoMi/pegasus-go-client/pegalog"
@@ -18,6 +17,5 @@ func main() {
 		LocalTime: true,
 	})
 
-	cmd.Init()
 	shell.Root.Execute()
 }

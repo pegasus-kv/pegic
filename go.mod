@@ -4,17 +4,19 @@ go 1.14
 
 require (
 	github.com/XiaoMi/pegasus-go-client v0.0.0-20201127155445-d3b9a03abf6e
-	github.com/c-bata/go-prompt v0.2.3
+	github.com/desertbit/closer/v3 v3.1.2 // indirect
 	github.com/desertbit/grumble v1.0.8
-	github.com/klauspost/compress v1.11.3 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/mattn/go-tty v0.0.3 // indirect
-	github.com/olekukonko/tablewriter v0.0.4
-	github.com/pegasus-kv/admin-cli v0.0.0-20201204112507-d92fdd5e2784
-	github.com/pkg/term v0.0.0-20200520122047-c3ffed290a03 // indirect
+	github.com/fatih/color v1.10.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.0 // indirect
+	github.com/klauspost/compress v1.11.3
+	github.com/kr/pretty v0.2.0 // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.1.1
-	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.6.1
+	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
+	golang.org/x/sys v0.0.0-20201130171929-760e229fe7c5 // indirect
+	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )

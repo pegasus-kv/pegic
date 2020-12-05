@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"pegic/executor/util"
 	"time"
-
-	"github.com/XiaoMi/pegasus-go-client/pegasus"
 )
 
-func Get(rootCtx *Context, tb pegasus.TableConnector, hashKey, sortkey *util.PegicBytes) error {
+func Get(rootCtx *Context, hashKey, sortkey *util.PegicBytes) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	value, err := tb.Get(ctx, hashKey.Bytes(), sortkey.Bytes())
+	value, err := rootCtx.UseTable.Get(ctx, hashKey.Bytes(), sortkey.Bytes())
 	if err != nil {
 		return err
 	}

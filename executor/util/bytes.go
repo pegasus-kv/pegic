@@ -13,11 +13,26 @@ type PegicBytesEncoding int
 
 const (
 	// EncodingUTF8 is the default encoding of string.
-	EncodingUTF8  PegicBytesEncoding = 0
-	EncodingASCII                    = 1
-	EncodingInt                      = 2
-	EncodingBytes                    = 3
+	EncodingUTF8 PegicBytesEncoding = iota
+	EncodingInt32
+	EncodingInt64
+	EncodingBytes
 )
+
+func (e PegicBytesEncoding) String() string {
+	switch e {
+	case EncodingUTF8:
+		return "UTF-8"
+	case EncodingInt32:
+		return "INT32"
+	case EncodingInt64:
+		return "INT64"
+	case EncodingBytes:
+		return "BYTES"
+	default:
+		panic(nil)
+	}
+}
 
 type PegicBytes struct {
 	encoding PegicBytesEncoding
@@ -25,7 +40,7 @@ type PegicBytes struct {
 	value []byte
 }
 
-func CreateBytesFromString(s string, enc PegicBytesEncoding) (*PegicBytes, error) {
+func NewBytesFromString(s string, enc PegicBytesEncoding) (*PegicBytes, error) {
 	pb := &PegicBytes{}
 	switch enc {
 	case EncodingUTF8:
@@ -34,13 +49,31 @@ func CreateBytesFromString(s string, enc PegicBytesEncoding) (*PegicBytes, error
 		}
 		pb.value = []byte(s) // go uses utf8 by default.
 
-	case EncodingInt:
-		i, err := strconv.ParseUint(s, 10, 64 /*bits*/)
+	case EncodingInt32:
+		i, err := strconv.ParseInt(s, 10, 32 /*bits*/)
 		if err != nil {
-			return nil, errors.New("invalid integer")
+			return nil, errors.New("invalid INT32")
 		}
-		pb.value = make([]byte, 8 /*bytes*/)
-		binary.BigEndian.PutUint64(pb.value, i)
+		if enc == EncodingInt32 {
+			pb.value = make([]byte, 4 /*bytes*/)
+			binary.BigEndian.PutUint32(pb.value, uint32(i))
+		} else {
+			pb.value = make([]byte, 8 /*bytes*/)
+			binary.BigEndian.PutUint64(pb.value, uint64(i))
+		}
+
+	case EncodingInt64:
+		i, err := strconv.ParseInt(s, 10, 64 /*bits*/)
+		if err != nil {
+			return nil, errors.New("invalid INT64")
+		}
+		if enc == EncodingInt32 {
+			pb.value = make([]byte, 4 /*bytes*/)
+			binary.BigEndian.PutUint32(pb.value, uint32(i))
+		} else {
+			pb.value = make([]byte, 8 /*bytes*/)
+			binary.BigEndian.PutUint64(pb.value, uint64(i))
+		}
 
 	case EncodingBytes:
 		bytesInStrList := strings.Split(s, " ")
@@ -60,9 +93,58 @@ func CreateBytesFromString(s string, enc PegicBytesEncoding) (*PegicBytes, error
 	return pb, nil
 }
 
-func (*PegicBytes) String() string {
-	// TODO(wutao)
-	return ""
+func NewBytes(s []byte, enc PegicBytesEncoding) (*PegicBytes, error) {
+	pb := &PegicBytes{
+		value: s,
+	}
+
+	switch enc {
+	case EncodingUTF8:
+		if !utf8.Valid(s) {
+			return pb, errors.New("invalid utf8 bytes")
+		}
+
+	case EncodingInt32:
+		if len(s) != 4 {
+			return pb, fmt.Errorf("bytes is not a valid INT32")
+		}
+
+	case EncodingInt64:
+		if len(s) != 8 {
+			return pb, fmt.Errorf("bytes is not a valid INT64")
+		}
+
+	case EncodingBytes:
+
+	default:
+		panic(fmt.Sprintf("unsupported encoding %d", enc))
+	}
+	return pb, nil
+}
+
+func (b *PegicBytes) String() string {
+	switch b.encoding {
+	case EncodingUTF8:
+		return string(b.value)
+
+	case EncodingInt32:
+		i := binary.BigEndian.Uint32(b.value)
+		return fmt.Sprint(int32(i))
+
+	case EncodingInt64:
+		i := binary.BigEndian.Uint64(b.value)
+		return fmt.Sprint(int64(i))
+
+	case EncodingBytes:
+		s := ""
+		for _, c := range b.value {
+			s += fmt.Sprint(int(c)) + " "
+		}
+		return strings.TrimSpace(s)
+
+	default:
+		panic(nil)
+	}
 }
 
 func (b *PegicBytes) Bytes() []byte {

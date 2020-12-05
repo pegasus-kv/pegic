@@ -36,7 +36,7 @@ func NewContext(writer io.Writer, metaAddrs []string) *Context {
 // The order of arguments are also preserved.
 func readPegasusArgs(ctx *Context, args []string) ([]*util.PegicBytes, error) {
 	// the first argument must be hashkey
-	hashkey, err := util.CreateBytesFromString(args[0], ctx.HashKeyEnc)
+	hashkey, err := util.NewBytesFromString(args[0], ctx.HashKeyEnc)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func readPegasusArgs(ctx *Context, args []string) ([]*util.PegicBytes, error) {
 		return []*util.PegicBytes{hashkey}, nil
 	}
 
-	sortkey, err := util.CreateBytesFromString(args[1], ctx.SortKeyEnc)
+	sortkey, err := util.NewBytesFromString(args[1], ctx.SortKeyEnc)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func readPegasusArgs(ctx *Context, args []string) ([]*util.PegicBytes, error) {
 		return []*util.PegicBytes{hashkey, sortkey}, nil
 	}
 
-	value, err := util.CreateBytesFromString(args[1], ctx.SortKeyEnc)
+	value, err := util.NewBytesFromString(args[1], ctx.SortKeyEnc)
 	if err != nil {
 		return nil, err
 	}

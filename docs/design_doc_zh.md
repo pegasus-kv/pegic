@@ -62,31 +62,6 @@ SCAN [COUNT|DELETE] <HASHKEY "hashkey">
 
 ## 全表扫描
 
-**Interactive 模式：**
-
-```
-FULLSCAN [COUNT|DELETE]
-[
-    [HASHKEY [CONTAINS|SUFFIX|PREFIX] <"filter">]
-    [SORTKEY
-        [[IS <"str">]
-         |[CONTAINS|SUFFIX|PREFIX] <"filter">]
-         |[BETWEEN <"startSortKey"> AND <"stopSortKey">]]
-    ]
-]
-[NOVALUE]
-```
-
-例子：
-- `fullscan hashkey prefix "uid" sortkey contains "214"`
-- `fullscan delete hashkey contains "uid"`
-
-备注：
-- 由于涉及大量scan，首先会去collector上获取的表总条数，大于一定数量则返回 “There are too many records to scan, please use pegasus-spark instead”。
-- 数据条数小于1千万（以1w条每秒速度运行15分钟）时我们允许使用fullscan。
-- 即使数据量并不大，我们也通过限流限制fullscan的流量在1w每秒，避免对单机造成太大影响。
-- 同时我们限制scan的每个maxFetchCount为50，maxFetchSize为10KB。
-
 ## 写数据
 
 **Interactive 模式：`SET <"hashkey"> <"sortkey"> <"value"> [ttl_secs]`**
@@ -100,10 +75,10 @@ FULLSCAN [COUNT|DELETE]
 **Interactive 模式：**
 
 ```
-ENCODING [RESET]
-[HASHKEY <UTF-8 | ASCII | INT | BYTE>]
-[SORTKEY <UTF-8 | ASCII | INT | BYTE>]
-[VALUE <UTF-8 | ASCII | INT | BYTE>]
+ENCODING RESET
+ENCODING HASHKEY <UTF-8 | ASCII | INT | BYTE>
+ENCODING SORTKEY <UTF-8 | ASCII | INT | BYTE>
+ENCODING VALUE <UTF-8 | ASCII | INT | BYTE>
 ```
 
 设置读和写时使用的编码方式。 如果什么都不填则返回当前模式。"ENCODING RESET" 则重设当前全部编码为UTF-8。

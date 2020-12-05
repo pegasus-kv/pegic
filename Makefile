@@ -1,2 +1,2 @@
 build:
-	go build -o bin/pegic cmd/main.go
+	go build -o bin/pegic main.go

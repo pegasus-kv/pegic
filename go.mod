@@ -6,6 +6,7 @@ require (
 	github.com/XiaoMi/pegasus-go-client v0.0.0-20201127155445-d3b9a03abf6e
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/desertbit/grumble v1.0.8
+	github.com/klauspost/compress v1.11.3 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mattn/go-tty v0.0.3 // indirect
 	github.com/olekukonko/tablewriter v0.0.4

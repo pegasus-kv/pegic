@@ -63,3 +63,7 @@ func (*PegicBytes) String() string {
 	// TODO(wutao)
 	return ""
 }
+
+func (b *PegicBytes) Bytes() []byte {
+	return b.value
+}

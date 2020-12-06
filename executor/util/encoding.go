@@ -9,12 +9,15 @@ import (
 	"unicode/utf8"
 )
 
-type BytesEncoder interface {
+type Encoder interface {
 	// encode string into a bytes
 	EncodeAll(string) ([]byte, error)
 
 	// decode from bytes to string
 	DecodeAll([]byte) (string, error)
+
+	// String returns name of the encoding.
+	String() string
 }
 
 type utf8Encoder struct {
@@ -32,6 +35,14 @@ func (*utf8Encoder) DecodeAll(s []byte) (string, error) {
 		return "", errors.New("invalid utf8 bytes")
 	}
 	return string(s), nil
+}
+
+func (*utf8Encoder) String() string {
+	return "UTF-8"
+}
+
+func NewUTF8Encoder() Encoder {
+	return &utf8Encoder{}
 }
 
 type int32Encoder struct {
@@ -55,6 +66,14 @@ func (*int32Encoder) DecodeAll(s []byte) (string, error) {
 	return fmt.Sprint(int32(i)), nil
 }
 
+func (*int32Encoder) String() string {
+	return "INT32"
+}
+
+func NewINT32Encoder() Encoder {
+	return &int32Encoder{}
+}
+
 type int64Encoder struct {
 }
 
@@ -74,6 +93,14 @@ func (*int64Encoder) DecodeAll(s []byte) (string, error) {
 	}
 	i := binary.BigEndian.Uint64(s)
 	return fmt.Sprint(int64(i)), nil
+}
+
+func (*int64Encoder) String() string {
+	return "INT64"
+}
+
+func NewINT64Encoder() Encoder {
+	return &int64Encoder{}
 }
 
 type rawBytesEncoder struct {
@@ -100,4 +127,12 @@ func (*rawBytesEncoder) DecodeAll(bytes []byte) (string, error) {
 		s += fmt.Sprint(int(c)) + " "
 	}
 	return strings.TrimSpace(s), nil
+}
+
+func (*rawBytesEncoder) String() string {
+	return "BYTES"
+}
+
+func NewBytesEncoder() Encoder {
+	return &rawBytesEncoder{}
 }

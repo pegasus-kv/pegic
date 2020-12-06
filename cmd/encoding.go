@@ -12,8 +12,10 @@ func init() {
 		Aliases: []string{"ENCODING"},
 		Help:    "read the current encoding",
 		Run: func(c *grumble.Context) error {
-			// TODO(wutao): verify if the use table exists
-			c.App.Println("ok")
+			c.App.Println("ENCODING")
+			c.App.Println("HASHKEY = ", globalContext.HashKeyEnc)
+			c.App.Println("SORTKEY = ", globalContext.SortKeyEnc)
+			c.App.Println("VALUE   = ", globalContext.ValueEnc)
 			return nil
 		},
 		AllowArgs: true,

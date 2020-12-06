@@ -19,7 +19,7 @@ type Context struct {
 	// default to nil
 	Compressor util.BytesCompression
 
-	HashKeyEnc, SortKeyEnc, ValueEnc util.BytesEncoder
+	HashKeyEnc, SortKeyEnc, ValueEnc util.Encoder
 }
 
 func NewContext(writer io.Writer, metaAddrs []string) *Context {
@@ -28,6 +28,9 @@ func NewContext(writer io.Writer, metaAddrs []string) *Context {
 		Client: pegasus.NewClient(pegasus.Config{
 			MetaServers: metaAddrs,
 		}),
+		HashKeyEnc: util.NewUTF8Encoder(),
+		SortKeyEnc: util.NewUTF8Encoder(),
+		ValueEnc:   util.NewUTF8Encoder(),
 	}
 	return c
 }

@@ -18,7 +18,9 @@ func Get(rootCtx *Context, hashKeyStr, sortkeyStr string) error {
 	if err != nil {
 		return err
 	}
-
+	if rawValue == nil {
+		return fmt.Errorf("record not found\nHASH_KEY=%s\nSORT_KEY=%s", hashKeyStr, sortkeyStr)
+	}
 	value, err := rootCtx.ValueEnc.DecodeAll(rawValue)
 	if err != nil {
 		return err

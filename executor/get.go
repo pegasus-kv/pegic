@@ -3,7 +3,6 @@ package executor
 import (
 	"context"
 	"fmt"
-	"pegic/executor/util"
 	"time"
 )
 
@@ -15,15 +14,15 @@ func Get(rootCtx *Context, hashKeyStr, sortkeyStr string) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	rawValue, err := rootCtx.UseTable.Get(ctx, pegasusArgs[0].Bytes(), pegasusArgs[1].Bytes())
+	rawValue, err := rootCtx.UseTable.Get(ctx, pegasusArgs[0], pegasusArgs[1])
 	if err != nil {
 		return err
 	}
 
-	value, err := util.NewBytes(rawValue, rootCtx.ValueEnc)
+	value, err := rootCtx.ValueEnc.DecodeAll(rawValue)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(rootCtx, value.String())
+	fmt.Fprintln(rootCtx, value)
 	return nil
 }

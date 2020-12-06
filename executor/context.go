@@ -19,7 +19,7 @@ type Context struct {
 	// default to nil
 	Compressor util.BytesCompression
 
-	HashKeyEnc, SortKeyEnc, ValueEnc util.PegicBytesEncoding
+	HashKeyEnc, SortKeyEnc, ValueEnc util.BytesEncoder
 }
 
 func NewContext(writer io.Writer, metaAddrs []string) *Context {
@@ -34,30 +34,30 @@ func NewContext(writer io.Writer, metaAddrs []string) *Context {
 
 // readPegasusArgs returns exactly the same number of arguments of input `args` if no failure.
 // The order of arguments are also preserved.
-func readPegasusArgs(ctx *Context, args []string) ([]*util.PegicBytes, error) {
+func readPegasusArgs(ctx *Context, args []string) ([][]byte, error) {
 	// the first argument must be hashkey
-	hashkey, err := util.NewBytesFromString(args[0], ctx.HashKeyEnc)
+	hashkey, err := ctx.HashKeyEnc.EncodeAll(args[0])
 	if err != nil {
 		return nil, err
 	}
 	if len(args) == 1 {
-		return []*util.PegicBytes{hashkey}, nil
+		return [][]byte{hashkey}, nil
 	}
 
-	sortkey, err := util.NewBytesFromString(args[1], ctx.SortKeyEnc)
+	sortkey, err := ctx.SortKeyEnc.EncodeAll(args[1])
 	if err != nil {
 		return nil, err
 	}
 	if len(args) == 2 {
-		return []*util.PegicBytes{hashkey, sortkey}, nil
+		return [][]byte{hashkey, sortkey}, nil
 	}
 
-	value, err := util.NewBytesFromString(args[1], ctx.SortKeyEnc)
+	value, err := ctx.SortKeyEnc.EncodeAll(args[1])
 	if err != nil {
 		return nil, err
 	}
 	if len(args) == 3 {
-		return []*util.PegicBytes{hashkey, sortkey, value}, nil
+		return [][]byte{hashkey, sortkey, value}, nil
 	}
 
 	panic("more than 3 arguments are given")

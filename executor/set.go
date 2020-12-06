@@ -13,5 +13,5 @@ func Set(rootCtx *Context, hashKeyStr, sortkeyStr, valueStr string) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	return rootCtx.UseTable.Set(ctx, pegasusArgs[0].Bytes(), pegasusArgs[1].Bytes(), pegasusArgs[2].Bytes())
+	return rootCtx.UseTable.Set(ctx, pegasusArgs[0], pegasusArgs[1], pegasusArgs[2])
 }

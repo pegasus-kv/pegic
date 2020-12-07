@@ -22,7 +22,7 @@ func init() {
 			if err != nil {
 				return err
 			}
-			c.App.Println("ok")
+			c.App.Println(globalContext)
 			return nil
 		},
 		AllowArgs: true,

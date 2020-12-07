@@ -28,11 +28,21 @@ func NewContext(writer io.Writer, metaAddrs []string) *Context {
 		Client: pegasus.NewClient(pegasus.Config{
 			MetaServers: metaAddrs,
 		}),
+
+		// by default, string uses utf-8 as encoding to bytes
 		HashKeyEnc: util.NewUTF8Encoder(),
 		SortKeyEnc: util.NewUTF8Encoder(),
 		ValueEnc:   util.NewUTF8Encoder(),
 	}
 	return c
+}
+
+func (c *Context) String() string {
+	output := "\nEncoding:\n"
+	output += "  - HashKey: " + c.HashKeyEnc.String() + "\n"
+	output += "  - SortKey: " + c.SortKeyEnc.String() + "\n"
+	output += "  - Value: " + c.ValueEnc.String() + "\n"
+	return output
 }
 
 // readPegasusArgs returns exactly the same number of arguments of input `args` if no failure.
@@ -55,7 +65,7 @@ func readPegasusArgs(ctx *Context, args []string) ([][]byte, error) {
 		return [][]byte{hashkey, sortkey}, nil
 	}
 
-	value, err := ctx.SortKeyEnc.EncodeAll(args[1])
+	value, err := ctx.ValueEnc.EncodeAll(args[2])
 	if err != nil {
 		return nil, err
 	}

@@ -25,6 +25,6 @@ func Get(rootCtx *Context, hashKeyStr, sortkeyStr string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(rootCtx, value)
+	fmt.Fprintf(rootCtx, "\n%s : %s : %s\n", hashKeyStr, sortkeyStr, value)
 	return nil
 }

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+	"pegic/executor/util"
 	"pegic/interactive"
 
 	"github.com/desertbit/grumble"
@@ -12,13 +14,9 @@ func init() {
 		Aliases: []string{"ENCODING"},
 		Help:    "read the current encoding",
 		Run: func(c *grumble.Context) error {
-			c.App.Println("ENCODING")
-			c.App.Println("HASHKEY = ", globalContext.HashKeyEnc)
-			c.App.Println("SORTKEY = ", globalContext.SortKeyEnc)
-			c.App.Println("VALUE   = ", globalContext.ValueEnc)
+			c.App.Println(globalContext)
 			return nil
 		},
-		AllowArgs: true,
 	}
 
 	rootCmd.AddCommand(&grumble.Command{
@@ -26,11 +24,10 @@ func init() {
 		Aliases: []string{"HASHKEY"},
 		Help:    "set encoding for hashkey",
 		Run: func(c *grumble.Context) error {
-			// TODO(wutao): verify if the use table exists
-			c.App.Println("ok")
-			return nil
+			return resetEncoding(c, &globalContext.HashKeyEnc)
 		},
 		AllowArgs: true,
+		Completer: encodingCompleter,
 	})
 
 	rootCmd.AddCommand(&grumble.Command{
@@ -38,11 +35,10 @@ func init() {
 		Aliases: []string{"SORTKEY"},
 		Help:    "set encoding for sortkey",
 		Run: func(c *grumble.Context) error {
-			// TODO(wutao): verify if the use table exists
-			c.App.Println("ok")
-			return nil
+			return resetEncoding(c, &globalContext.SortKeyEnc)
 		},
 		AllowArgs: true,
+		Completer: encodingCompleter,
 	})
 
 	rootCmd.AddCommand(&grumble.Command{
@@ -50,12 +46,36 @@ func init() {
 		Aliases: []string{"VALUE"},
 		Help:    "set encoding for value",
 		Run: func(c *grumble.Context) error {
-			// TODO(wutao): verify if the use table exists
-			c.App.Println("ok")
-			return nil
+			return resetEncoding(c, &globalContext.ValueEnc)
 		},
 		AllowArgs: true,
+		Completer: encodingCompleter,
 	})
 
 	interactive.App.AddCommand(rootCmd)
+}
+
+// resetEncoding is the generic executor for the encoding-reset commands
+func resetEncoding(c *grumble.Context, encPtr *util.Encoder) error {
+	if len(c.Args) != 1 {
+		return fmt.Errorf("invalid number (%d) of arguments for `encoding %s`", len(c.Args), c.Command.Name)
+	}
+
+	encoding := c.Args[0]
+	enc := util.NewEncoder(encoding)
+	if enc == nil {
+		return fmt.Errorf("uncognized encoding: %s", encoding)
+	}
+	*encPtr = enc
+	c.App.Println(globalContext)
+	return nil
+}
+
+func encodingCompleter(prefix string, args []string) []string {
+	return filterStringWithPrefix([]string{
+		"utf8",
+		"int32",
+		"int64",
+		"bytes",
+	}, prefix)
 }

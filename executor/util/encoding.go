@@ -38,11 +38,7 @@ func (*utf8Encoder) DecodeAll(s []byte) (string, error) {
 }
 
 func (*utf8Encoder) String() string {
-	return "UTF-8"
-}
-
-func NewUTF8Encoder() Encoder {
-	return &utf8Encoder{}
+	return "UTF8"
 }
 
 type int32Encoder struct {
@@ -70,10 +66,6 @@ func (*int32Encoder) String() string {
 	return "INT32"
 }
 
-func NewINT32Encoder() Encoder {
-	return &int32Encoder{}
-}
-
 type int64Encoder struct {
 }
 
@@ -99,10 +91,6 @@ func (*int64Encoder) String() string {
 	return "INT64"
 }
 
-func NewINT64Encoder() Encoder {
-	return &int64Encoder{}
-}
-
 type rawBytesEncoder struct {
 }
 
@@ -122,17 +110,31 @@ func (*rawBytesEncoder) EncodeAll(s string) ([]byte, error) {
 }
 
 func (*rawBytesEncoder) DecodeAll(bytes []byte) (string, error) {
-	s := ""
-	for _, c := range bytes {
-		s += fmt.Sprint(int(c)) + " "
+	s := make([]string, len(bytes))
+	for i, c := range bytes {
+		s[i] += fmt.Sprint(int(c))
 	}
-	return strings.TrimSpace(s), nil
+	return strings.Join(s, ","), nil
 }
 
 func (*rawBytesEncoder) String() string {
 	return "BYTES"
 }
 
-func NewBytesEncoder() Encoder {
-	return &rawBytesEncoder{}
+// NewEncoder returns nil if the given name is invalid.
+func NewEncoder(name string) Encoder {
+	name = strings.ToLower(name)
+	switch name {
+	case "utf8", "utf-8":
+		return &utf8Encoder{}
+	case "int32":
+		return &int32Encoder{}
+	case "int64":
+		return &int64Encoder{}
+	case "bytes":
+		return &rawBytesEncoder{}
+	// TODO(wutao): support hex array, such as 0x37, 0xFF, ...
+	default:
+		return nil
+	}
 }

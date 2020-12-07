@@ -30,9 +30,9 @@ func NewContext(writer io.Writer, metaAddrs []string) *Context {
 		}),
 
 		// by default, string uses utf-8 as encoding to bytes
-		HashKeyEnc: util.NewUTF8Encoder(),
-		SortKeyEnc: util.NewUTF8Encoder(),
-		ValueEnc:   util.NewUTF8Encoder(),
+		HashKeyEnc: util.NewEncoder("utf8"),
+		SortKeyEnc: util.NewEncoder("utf8"),
+		ValueEnc:   util.NewEncoder("utf8"),
 	}
 	return c
 }

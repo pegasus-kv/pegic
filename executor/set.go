@@ -2,6 +2,7 @@ package executor
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -13,5 +14,10 @@ func Set(rootCtx *Context, hashKeyStr, sortkeyStr, valueStr string) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	return rootCtx.UseTable.Set(ctx, pegasusArgs[0], pegasusArgs[1], pegasusArgs[2])
+	err = rootCtx.UseTable.Set(ctx, pegasusArgs[0], pegasusArgs[1], pegasusArgs[2])
+	if err != nil {
+		return err
+	}
+	fmt.Fprintln(rootCtx, "\nok")
+	return nil
 }

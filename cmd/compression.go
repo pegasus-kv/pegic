@@ -8,9 +8,8 @@ import (
 
 func init() {
 	rootCmd := &grumble.Command{
-		Name:    "compression",
-		Aliases: []string{"COMPRESSION"},
-		Help:    "read the current compression algorithm",
+		Name: "compression",
+		Help: "read the current compression algorithm",
 		Run: func(c *grumble.Context) error {
 			// TODO(wutao): verify if the use table exists
 			c.App.Println("ok")

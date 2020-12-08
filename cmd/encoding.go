@@ -10,9 +10,8 @@ import (
 
 func init() {
 	rootCmd := &grumble.Command{
-		Name:    "encoding",
-		Aliases: []string{"ENCODING"},
-		Help:    "read the current encoding",
+		Name: "encoding",
+		Help: "read the current encoding",
 		Run: func(c *grumble.Context) error {
 			c.App.Println(globalContext)
 			return nil
@@ -20,9 +19,8 @@ func init() {
 	}
 
 	rootCmd.AddCommand(&grumble.Command{
-		Name:    "hashkey",
-		Aliases: []string{"HASHKEY"},
-		Help:    "set encoding for hashkey",
+		Name: "hashkey",
+		Help: "set encoding for hashkey",
 		Run: func(c *grumble.Context) error {
 			return resetEncoding(c, &globalContext.HashKeyEnc)
 		},
@@ -31,9 +29,8 @@ func init() {
 	})
 
 	rootCmd.AddCommand(&grumble.Command{
-		Name:    "sortkey",
-		Aliases: []string{"SORTKEY"},
-		Help:    "set encoding for sortkey",
+		Name: "sortkey",
+		Help: "set encoding for sortkey",
 		Run: func(c *grumble.Context) error {
 			return resetEncoding(c, &globalContext.SortKeyEnc)
 		},
@@ -42,9 +39,8 @@ func init() {
 	})
 
 	rootCmd.AddCommand(&grumble.Command{
-		Name:    "value",
-		Aliases: []string{"VALUE"},
-		Help:    "set encoding for value",
+		Name: "value",
+		Help: "set encoding for value",
 		Run: func(c *grumble.Context) error {
 			return resetEncoding(c, &globalContext.ValueEnc)
 		},

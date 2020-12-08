@@ -31,10 +31,9 @@ import (
 
 func init() {
 	interactive.App.AddCommand(&grumble.Command{
-		Name:    "use",
-		Aliases: []string{"USE"},
-		Help:    "select a table",
-		Usage:   "use <TABLE_NAME>",
+		Name:  "use",
+		Help:  "select a table",
+		Usage: "use <TABLE_NAME>",
 		Run: func(c *grumble.Context) error {
 			if len(c.Args) != 1 {
 				return fmt.Errorf("invalid number (%d) of arguments for `use`", len(c.Args))

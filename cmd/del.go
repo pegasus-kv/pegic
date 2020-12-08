@@ -10,10 +10,9 @@ import (
 
 func init() {
 	interactive.App.AddCommand(&grumble.Command{
-		Name:    "del",
-		Aliases: []string{"DEL"},
-		Help:    "delete a record",
-		Usage:   "del <HASHKEY> <SORTKEY>",
+		Name:  "del",
+		Help:  "delete a record",
+		Usage: "del <HASHKEY> <SORTKEY>",
 		Run: func(c *grumble.Context) error {
 			if len(c.Args) != 2 {
 				return fmt.Errorf("invalid number (%d) of arguments for `del`", len(c.Args))

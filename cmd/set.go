@@ -10,10 +10,9 @@ import (
 
 func init() {
 	interactive.App.AddCommand(&grumble.Command{
-		Name:    "set",
-		Aliases: []string{"SET"},
-		Help:    "write a record into Pegasus",
-		Usage:   "set <HASHKEY> <SORTKEY> <VALUE>",
+		Name:  "set",
+		Help:  "write a record into Pegasus",
+		Usage: "set <HASHKEY> <SORTKEY> <VALUE>",
 		Run: requireUseTable(func(c *grumble.Context) error {
 			if len(c.Args) != 3 {
 				return fmt.Errorf("invalid number (%d) of arguments for `set`", len(c.Args))

@@ -10,10 +10,9 @@ import (
 
 func init() {
 	interactive.App.AddCommand(&grumble.Command{
-		Name:    "get",
-		Aliases: []string{"GET"},
-		Help:    "read a record from Pegasus",
-		Usage:   "get <HASHKEY> <SORTKEY>",
+		Name:  "get",
+		Help:  "read a record from Pegasus",
+		Usage: "get <HASHKEY> <SORTKEY>",
 		Run: requireUseTable(func(c *grumble.Context) error {
 			if len(c.Args) != 2 {
 				return fmt.Errorf("invalid number (%d) of arguments for `get`", len(c.Args))

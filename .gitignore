@@ -1,3 +1,4 @@
 bin/
 .*-history
 *.log
+.idea

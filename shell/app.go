@@ -1,8 +1,8 @@
 package shell
 
 import (
-	"pegic/cmd"
 	"pegic/interactive"
+	"pegic/interactive/cmd"
 	"strings"
 
 	"github.com/spf13/cobra"

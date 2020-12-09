@@ -133,6 +133,8 @@ func NewEncoder(name string) Encoder {
 		return &int64Encoder{}
 	case "bytes":
 		return &rawBytesEncoder{}
+	case "asciihex":
+		return &asciiHexEncoder{}
 	// TODO(wutao): support hex array, such as 0x37, 0xFF, ...
 	default:
 		return nil

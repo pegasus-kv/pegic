@@ -3,7 +3,7 @@ module pegic
 go 1.14
 
 require (
-	github.com/XiaoMi/pegasus-go-client v0.0.0-20210419064920-358b58b3f96a
+	github.com/XiaoMi/pegasus-go-client v0.0.0-20211126055700-5ae2deb75c37
 	github.com/desertbit/grumble v1.1.1
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/klauspost/compress v1.12.1

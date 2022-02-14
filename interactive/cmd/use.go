@@ -22,9 +22,10 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"pegic/interactive"
 	"strings"
 	"time"
+
+	"github.com/pegasus-kv/pegic/interactive"
 
 	"github.com/desertbit/grumble"
 )

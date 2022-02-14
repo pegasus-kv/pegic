@@ -21,8 +21,9 @@ package cmd
 
 import (
 	"fmt"
-	"pegic/executor"
-	"pegic/interactive"
+
+	"github.com/pegasus-kv/pegic/executor"
+	"github.com/pegasus-kv/pegic/interactive"
 
 	"github.com/desertbit/grumble"
 )

@@ -22,8 +22,9 @@ package cmd
 import (
 	"errors"
 	"os"
-	"pegic/executor"
 	"strings"
+
+	"github.com/pegasus-kv/pegic/executor"
 
 	"github.com/XiaoMi/pegasus-go-client/session"
 	"github.com/desertbit/grumble"

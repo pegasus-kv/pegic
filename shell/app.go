@@ -25,7 +25,6 @@ import (
 
 	"github.com/pegasus-kv/pegic/interactive"
 	"github.com/pegasus-kv/pegic/interactive/cmd"
-
 	"github.com/spf13/cobra"
 )
 

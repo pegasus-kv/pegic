@@ -21,7 +21,6 @@ package shell
 
 import (
 	"github.com/pegasus-kv/pegic/executor/util"
-
 	"github.com/spf13/cobra"
 )
 

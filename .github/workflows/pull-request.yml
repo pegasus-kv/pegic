@@ -8,7 +8,7 @@ on:
     types: [ synchronize, reopened, opened ]
     branches:
       - master
-      - ci-test # testing branch for github action
+      - commit_history_rebased
   push:
     branches:
       - master
